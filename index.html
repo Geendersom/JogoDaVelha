@@ -169,170 +169,35 @@
     </div>
 
     <script>
-        let pyodide;
-        let jogo;
-
-        // Função para atualizar o tabuleiro visual
-        function atualizarTabuleiro(tabuleiro) {
-            const celulas = document.querySelectorAll('.celula');
-            celulas.forEach(celula => {
-                const pos = celula.getAttribute('data-pos');
-                const valor = tabuleiro[pos];
-                celula.textContent = valor === ' ' ? '' : valor;
-                celula.className = 'celula';
-                if (valor === 'X') {
-                    celula.classList.add('x');
-                } else if (valor === 'O') {
-                    celula.classList.add('o');
-                }
-            });
-        }
-
-        // Função para atualizar o status
-        function atualizarStatus(mensagem, tipo = '') {
-            const statusEl = document.getElementById('status');
-            statusEl.textContent = mensagem;
-            statusEl.className = 'status';
-            if (tipo === 'vencedor') {
-                statusEl.classList.add('vencedor');
-            } else if (tipo === 'empate') {
-                statusEl.classList.add('empate');
-            }
-        }
-
-        // Função para habilitar/desabilitar células
-        function habilitarCelulas(habilitado) {
-            const celulas = document.querySelectorAll('.celula');
-            celulas.forEach(celula => {
-                if (habilitado) {
-                    celula.classList.remove('disabled');
-                } else {
-                    celula.classList.add('disabled');
-                }
-            });
-        }
-
-        // Função para fazer uma jogada
-        async function fazerJogada(posicao) {
-            if (!jogo) return;
-            
-            try {
-                // Verifica se a jogada é válida
-                const jogadaValida = await pyodide.runPython(`
-                    jogo.verificar_jogada('${posicao}')
-                `);
-                
-                if (!jogadaValida) {
-                    return;
-                }
-
-                // Faz a jogada
-                await pyodide.runPython(`
-                    jogo.tabuleiro['${posicao}'] = jogo.turno
-                `);
-
-                // Atualiza o tabuleiro
-                const tabuleiro = await pyodide.runPython(`
-                    dict(jogo.tabuleiro)
-                `);
-                atualizarTabuleiro(tabuleiro);
-
-                // Verifica o estado do jogo
-                const estado = await pyodide.runPython(`
-                    jogo.verificar_tabuleiro()
-                `);
-
-                if (estado === 'X' || estado === 'O') {
-                    atualizarStatus(`${estado} é o vencedor!!! 🎉`, 'vencedor');
-                    habilitarCelulas(false);
-                } else if (estado === 'empate') {
-                    atualizarStatus('EMPATE!!! 🤝', 'empate');
-                    habilitarCelulas(false);
-                } else {
-                    // Troca o turno
-                    await pyodide.runPython(`
-                        jogo.turno = "X" if jogo.turno == "O" else "O"
-                    `);
-                    const turno = await pyodide.runPython(`jogo.turno`);
-                    atualizarStatus(`Turno do ${turno}`);
-                }
-            } catch (error) {
-                console.error('Erro ao fazer jogada:', error);
-            }
-        }
-
-        // Função para reiniciar o jogo
-        async function reiniciarJogo() {
-            if (!pyodide) return;
-            
-            try {
-                await pyodide.runPython(`
-                    jogo = JogoDaVelha()
-                `);
-                jogo = await pyodide.runPython(`jogo`);
-                
-                const tabuleiro = await pyodide.runPython(`
-                    dict(jogo.tabuleiro)
-                `);
-                atualizarTabuleiro(tabuleiro);
-                
-                const turno = await pyodide.runPython(`jogo.turno`);
-                atualizarStatus(`Turno do ${turno}`);
-                habilitarCelulas(true);
-            } catch (error) {
-                console.error('Erro ao reiniciar:', error);
-            }
-        }
-
-        // Inicializar Pyodide e carregar o código Python
+        // JavaScript mínimo - apenas para inicializar o Pyodide
+        // Toda a lógica do jogo está em Python
+        
         async function main() {
-            atualizarStatus('Carregando Python...');
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = 'Carregando Python...';
             
-            pyodide = await loadPyodide();
-            
-            atualizarStatus('Carregando jogo...');
-            
-            // Carregar o código Python do arquivo
             try {
+                // Carrega o Pyodide
+                const pyodide = await loadPyodide();
+                
+                statusEl.textContent = 'Carregando jogo...';
+                
+                // Carrega o código Python do arquivo
                 const response = await fetch('JogoDaVelha.py');
                 const codigoPython = await response.text();
                 
+                // Executa o código Python (que já inicializa o jogo)
                 await pyodide.runPython(codigoPython);
                 
-                // Criar instância do jogo
-                await pyodide.runPython(`
-                    jogo = JogoDaVelha()
-                `);
-                
-                jogo = await pyodide.runPython(`jogo`);
-                
-                // Atualizar interface inicial
-                const tabuleiro = await pyodide.runPython(`
-                    dict(jogo.tabuleiro)
-                `);
-                atualizarTabuleiro(tabuleiro);
-                
-                const turno = await pyodide.runPython(`jogo.turno`);
-                atualizarStatus(`Turno do ${turno}`);
-                
-                // Adicionar event listeners
-                const celulas = document.querySelectorAll('.celula');
-                celulas.forEach(celula => {
-                    celula.addEventListener('click', () => {
-                        const pos = celula.getAttribute('data-pos');
-                        fazerJogada(pos);
-                    });
-                });
-                
-                document.getElementById('reiniciar').addEventListener('click', reiniciarJogo);
+                console.log('Jogo carregado com sucesso! Toda a lógica está em Python.');
                 
             } catch (error) {
                 console.error('Erro ao carregar código Python:', error);
-                atualizarStatus('Erro ao carregar o jogo. Verifique se o arquivo JogoDaVelha.py existe.');
+                statusEl.textContent = 'Erro ao carregar o jogo. Verifique se o arquivo JogoDaVelha.py existe.';
             }
         }
 
-        // Iniciar quando a página carregar
+        // Inicia quando a página carregar
         main();
     </script>
 </body>
