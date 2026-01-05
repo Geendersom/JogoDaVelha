@@ -39,8 +39,11 @@ class JogoDaVelha:
             self.reiniciar()
         btn_reiniciar.addEventListener('click', create_proxy(callback_reiniciar))
 
-    def atualizar_tabuleiro_visual(self):
+    def atualizar_tabuleiro_visual(self, posicoes_vencedoras=None):
         """Atualiza o tabuleiro visual no navegador usando Python"""
+        if posicoes_vencedoras is None:
+            posicoes_vencedoras = []
+        
         celulas = document.querySelectorAll('.celula')
         for i in range(celulas.length):
             celula = celulas[i]
@@ -51,11 +54,22 @@ class JogoDaVelha:
             celula.textContent = '' if valor == ' ' else valor
             celula.className = 'celula'
             
+            # Verifica se esta célula faz parte da sequência vencedora
+            is_vencedor = posicao in posicoes_vencedoras
+            
             # Adiciona classes específicas para X e O
             if valor == 'X':
                 celula.classList.add('x')
+                if is_vencedor:
+                    celula.classList.add('vencedor')
+                elif posicoes_vencedoras:  # Se há vencedor mas esta célula não é vencedora
+                    celula.classList.add('escurecido')
             elif valor == 'O':
                 celula.classList.add('o')
+                if is_vencedor:
+                    celula.classList.add('vencedor')
+                elif posicoes_vencedoras:  # Se há vencedor mas esta célula não é vencedora
+                    celula.classList.add('escurecido')
 
     def atualizar_status(self, mensagem, tipo=''):
         """Atualiza a mensagem de status no navegador usando Python"""
@@ -86,34 +100,34 @@ class JogoDaVelha:
         return False
 
     def verificar_tabuleiro(self):
-        """Verifica o estado atual do tabuleiro e retorna o resultado"""
+        """Verifica o estado atual do tabuleiro e retorna o resultado e posições vencedoras"""
         # Verificações das 3 verticais
         if self.tabuleiro['7'] == self.tabuleiro['4'] == self.tabuleiro['1'] != ' ':
-            return self.tabuleiro['7']
+            return (self.tabuleiro['7'], ['7', '4', '1'])
         elif self.tabuleiro['8'] == self.tabuleiro['5'] == self.tabuleiro['2'] != ' ':
-            return self.tabuleiro['8']
+            return (self.tabuleiro['8'], ['8', '5', '2'])
         elif self.tabuleiro['9'] == self.tabuleiro['6'] == self.tabuleiro['3'] != ' ':
-            return self.tabuleiro['9']
+            return (self.tabuleiro['9'], ['9', '6', '3'])
 
         # Verificações das 3 horizontais
         elif self.tabuleiro['7'] == self.tabuleiro['8'] == self.tabuleiro['9'] != ' ':
-            return self.tabuleiro['7']
+            return (self.tabuleiro['7'], ['7', '8', '9'])
         elif self.tabuleiro['4'] == self.tabuleiro['5'] == self.tabuleiro['6'] != ' ':
-            return self.tabuleiro['4']
+            return (self.tabuleiro['4'], ['4', '5', '6'])
         elif self.tabuleiro['1'] == self.tabuleiro['2'] == self.tabuleiro['3'] != ' ':
-            return self.tabuleiro['1']
+            return (self.tabuleiro['1'], ['1', '2', '3'])
 
         # Verificações das 2 diagonais
         elif self.tabuleiro['7'] == self.tabuleiro['5'] == self.tabuleiro['3'] != ' ':
-            return self.tabuleiro['7']
+            return (self.tabuleiro['7'], ['7', '5', '3'])
         elif self.tabuleiro['1'] == self.tabuleiro['5'] == self.tabuleiro['9'] != ' ':
-            return self.tabuleiro['1']
+            return (self.tabuleiro['1'], ['1', '5', '9'])
 
         # Verificando empate
         if [*self.tabuleiro.values()].count(' ') == 0:
-            return "empate"
+            return ("empate", [])
         else:
-            return [*self.tabuleiro.values()].count(' ')
+            return ([*self.tabuleiro.values()].count(' '), [])
 
     def fazer_jogada(self, posicao):
         """Processa uma jogada do jogador - toda a lógica em Python"""
@@ -129,9 +143,18 @@ class JogoDaVelha:
         self.atualizar_tabuleiro_visual()
 
         # Verifica o estado do jogo
-        estado = self.verificar_tabuleiro()
+        resultado = self.verificar_tabuleiro()
+        
+        # Verifica se é uma tupla (vencedor) ou número (jogo em andamento)
+        if isinstance(resultado, tuple):
+            estado, posicoes_vencedoras = resultado
+        else:
+            estado = resultado
+            posicoes_vencedoras = []
 
         if estado == "X" or estado == "O":
+            # Atualiza o tabuleiro destacando a sequência vencedora
+            self.atualizar_tabuleiro_visual(posicoes_vencedoras)
             self.atualizar_status(f"{estado} é o vencedor!!! 🎉", 'vencedor')
             self.habilitar_celulas(False)
             self.jogo_ativo = False
@@ -149,7 +172,7 @@ class JogoDaVelha:
         self.tabuleiro = {'7': ' ', '8': ' ', '9': ' ', '4': ' ', '5': ' ', '6': ' ', '1': ' ', '2': ' ', '3': ' '}
         self.turno = "X"
         self.jogo_ativo = True
-        self.atualizar_tabuleiro_visual()
+        self.atualizar_tabuleiro_visual([])  # Limpa todas as classes de vencedor
         self.atualizar_status(f"Turno do {self.turno}")
         self.habilitar_celulas(True)
 
