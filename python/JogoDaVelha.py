@@ -1,6 +1,6 @@
 """
 Jogo da Velha (Tic-Tac-Toe)
-Desenvolvido por Geêndersom Araújo
+Criado por Geêndersom Araújo
 Linguagem principal: Python
 
 Este jogo foi desenvolvido usando Pyodide para executar Python diretamente no navegador.

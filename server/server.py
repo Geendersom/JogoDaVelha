@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 """
+Criado por Geêndersom Araújo
+
 Servidor HTTP simples para executar o jogo da velha no navegador.
 Execute este arquivo e acesse http://localhost:8000 no navegador.
 """
