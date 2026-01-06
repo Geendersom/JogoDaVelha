@@ -2,6 +2,13 @@
 
 Jogo da Velha desenvolvido em **Python puro**, executado diretamente no navegador usando Pyodide.
 
+## 🖼️ Pré-visualização
+
+<div align="center">
+  <img src="assets/print1.png" alt="Preview 1" width="45%" style="margin-right: 2%;">
+  <img src="assets/print2.png" alt="Preview 2" width="45%">
+</div>
+
 ## 📋 Descrição
 
 Este projeto demonstra como executar código Python diretamente no navegador, mantendo Python como a linguagem principal. Toda a lógica do jogo, manipulação do DOM e controle de eventos são escritos em Python.
