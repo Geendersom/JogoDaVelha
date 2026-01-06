@@ -55,7 +55,19 @@ body::after {
     pointer-events: none;
 }
 
-/* Container principal - estilo neon roxo */
+/* Wrapper principal para layout horizontal */
+.main-game-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 100px;
+    width: 100%;
+    max-width: 1400px;
+    margin: 20px auto;
+    padding: 0 20px;
+}
+
+/* Container principal - estilo neon roxo (apenas tabuleiro) */
 .container {
     background: 
         linear-gradient(135deg, rgba(18, 5, 29, 0.95) 0%, rgba(42, 13, 63, 0.95) 100%),
@@ -70,14 +82,14 @@ body::after {
         0 0 50px rgba(155, 92, 255, 0.1),
         inset 0 0 15px rgba(155, 92, 255, 0.05);
     border: 2px solid rgba(155, 92, 255, 0.3);
-    max-width: 500px;
-    width: calc(100% - 40px);
+    max-width: 600px;
+    width: 100%;
     z-index: 1;
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin: 20px auto;
+    flex-shrink: 0;
 }
 
 /* Título em card neon - removido, agora está em .titulo-card */
@@ -101,16 +113,18 @@ body::after {
     box-shadow: 0 0 10px rgba(155, 92, 255, 0.2);
 }
 
-/* Wrapper do tabuleiro para linhas horizontais */
+/* Wrapper do tabuleiro - mantém tamanho fixo */
 .tabuleiro-wrapper {
     position: relative;
-    margin-bottom: 20px;
-    width: 100%;
-    max-width: 400px;
-    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    flex-shrink: 0;
+    width: 550px;
 }
 
-/* Tabuleiro - estilo neon roxo profissional */
+/* Tabuleiro - estilo neon roxo profissional - TAMANHO AUMENTADO */
 .tabuleiro {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -124,9 +138,10 @@ body::after {
         0 0 15px rgba(155, 92, 255, 0.3),
         0 0 25px rgba(155, 92, 255, 0.2),
         inset 0 0 15px rgba(155, 92, 255, 0.08);
-    width: 100%;
-    height: 100%;
+    width: 550px;
+    height: 550px;
     overflow: hidden;
+    flex-shrink: 0;
 }
 
 /* Linha neon de vitória - animação */
@@ -515,6 +530,10 @@ body::after {
     padding: 20px;
     margin-top: 20px;
     min-height: auto;
+    max-width: 1000px;
+    width: calc(100% - 40px);
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .jogadores-wrapper {
@@ -711,12 +730,12 @@ body::after {
     background: rgba(79, 195, 255, 0.2);
     color: #4fc3ff;
     box-shadow: 
-        0 0 20px rgba(79, 195, 255, 0.8),
-        0 0 30px rgba(79, 195, 255, 0.5),
-        inset 0 0 15px rgba(79, 195, 255, 0.1);
+        0 0 8px rgba(79, 195, 255, 0.6),
+        0 0 12px rgba(79, 195, 255, 0.4),
+        inset 0 0 10px rgba(79, 195, 255, 0.1);
     text-shadow: 
-        0 0 8px rgba(79, 195, 255, 1),
-        0 0 12px rgba(79, 195, 255, 0.8);
+        0 0 4px rgba(79, 195, 255, 0.9),
+        0 0 6px rgba(79, 195, 255, 0.6);
 }
 
 /* Símbolo O ativo - rosa/magenta neon */
@@ -725,12 +744,12 @@ body::after {
     background: rgba(255, 79, 216, 0.2);
     color: #ff4fd8;
     box-shadow: 
-        0 0 20px rgba(255, 79, 216, 0.8),
-        0 0 30px rgba(255, 79, 216, 0.5),
-        inset 0 0 15px rgba(255, 79, 216, 0.1);
+        0 0 8px rgba(255, 79, 216, 0.6),
+        0 0 12px rgba(255, 79, 216, 0.4),
+        inset 0 0 10px rgba(255, 79, 216, 0.1);
     text-shadow: 
-        0 0 8px rgba(255, 79, 216, 1),
-        0 0 12px rgba(255, 79, 216, 0.8);
+        0 0 4px rgba(255, 79, 216, 0.9),
+        0 0 6px rgba(255, 79, 216, 0.6);
 }
 
 .btn-iniciar {
@@ -783,6 +802,7 @@ body::after {
     padding: 20px 40px;
     margin: 20px auto 30px;
     max-width: 500px;
+    width: calc(100% - 40px);
     box-shadow: 
         0 0 20px rgba(155, 92, 255, 0.3),
         0 0 35px rgba(155, 92, 255, 0.2),
@@ -790,6 +810,8 @@ body::after {
         inset 0 0 15px rgba(155, 92, 255, 0.05);
     border: 2px solid rgba(155, 92, 255, 0.3);
     text-align: center;
+    position: relative;
+    z-index: 10;
 }
 
 .titulo-card h1 {
@@ -839,53 +861,67 @@ body::after {
 /* ============================================
    CONTADORES DE JOGADORES
    ============================================ */
-.contadores-wrapper {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
-    gap: 20px;
-}
-
+/* Contadores de vitórias - nas laterais (fora do card) */
 .contador-jogador {
-    flex: 1;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 15px;
-    padding: 15px;
-    background: linear-gradient(135deg, rgba(18, 5, 29, 0.8) 0%, rgba(42, 13, 63, 0.8) 100%);
-    border: 2px solid rgba(155, 92, 255, 0.3);
-    border-radius: 15px;
+    gap: 20px;
+    padding: 25px;
+    background: linear-gradient(135deg, rgba(18, 5, 29, 0.9) 0%, rgba(42, 13, 63, 0.9) 100%);
+    border: 2px solid rgba(155, 92, 255, 0.4);
+    border-radius: 20px;
     box-shadow: 
-        0 0 10px rgba(155, 92, 255, 0.2),
-        inset 0 0 10px rgba(155, 92, 255, 0.05);
+        0 0 15px rgba(155, 92, 255, 0.3),
+        0 0 25px rgba(155, 92, 255, 0.2),
+        inset 0 0 15px rgba(155, 92, 255, 0.05);
+    min-width: 220px;
+    flex-shrink: 0;
+    flex-grow: 1;
+    max-width: 280px;
 }
 
 .contador-imagem {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    border: 2px solid rgba(155, 92, 255, 0.4);
-    box-shadow: 0 0 10px rgba(155, 92, 255, 0.3);
+    width: 120px;
+    height: 120px;
+    border-radius: 15px;
+    border: 3px solid rgba(155, 92, 255, 0.5);
+    box-shadow: 
+        0 0 15px rgba(155, 92, 255, 0.4),
+        inset 0 0 10px rgba(155, 92, 255, 0.1);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    object-fit: contain;
 }
 
 .contador-info {
     display: flex;
     flex-direction: column;
-    flex: 1;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
 }
 
 .contador-nome {
     color: #9b5cff;
-    font-size: 0.9em;
+    font-size: 1.4em;
     font-weight: bold;
-    text-shadow: 0 0 5px rgba(155, 92, 255, 0.6);
+    text-shadow: 
+        0 0 8px rgba(155, 92, 255, 0.8),
+        0 0 12px rgba(155, 92, 255, 0.5);
+    text-align: center;
 }
 
 .contador-pontos {
     color: white;
-    font-size: 1.8em;
+    font-size: 3.5em;
     font-weight: bold;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    text-shadow: 
+        0 0 15px rgba(255, 255, 255, 0.8),
+        0 0 25px rgba(255, 255, 255, 0.5),
+        0 0 35px rgba(255, 255, 255, 0.3);
+    line-height: 1;
 }
 
 /* ============================================
@@ -896,9 +932,60 @@ body::after {
     color: white;
     font-size: 1.3em;
     font-weight: bold;
-    margin-top: 20px;
     padding: 15px;
     text-shadow: 
         0 0 10px rgba(255, 255, 255, 0.3),
         2px 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* ============================================
+   RESPONSIVIDADE - Apenas para telas pequenas
+   ============================================ */
+@media screen and (max-width: 1400px) {
+    .main-game-wrapper {
+        max-width: 100%;
+        gap: 80px;
+    }
+}
+
+@media screen and (max-width: 1024px) {
+    .main-game-wrapper {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .contador-jogador {
+        min-width: auto;
+        width: 100%;
+        max-width: 300px;
+    }
+    
+    .tabuleiro-wrapper {
+        width: 100%;
+        max-width: 450px;
+    }
+    
+    .tabuleiro {
+        width: 100%;
+        max-width: 450px;
+        height: 450px;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .tabuleiro-wrapper {
+        width: 100%;
+        max-width: 350px;
+    }
+    
+    .tabuleiro {
+        width: 100%;
+        max-width: 350px;
+        height: 350px;
+    }
+    
+    .container {
+        max-width: 100%;
+        padding: 20px;
+    }
 }

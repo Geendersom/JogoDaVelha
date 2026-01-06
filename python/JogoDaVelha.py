@@ -832,6 +832,10 @@ def inicializar_jogo():
         global jogo
         jogo = JogoDaVelha()
         
+        # Esconde o status após carregar
+        if status_el:
+            status_el.style.display = 'none'
+        
         # Log de sucesso com estatísticas
         console.log("✅ Jogo da Velha inicializado com Python!")
         console.log("📊 Estatísticas iniciais:", obter_estatisticas_tabuleiro(jogo.tabuleiro))

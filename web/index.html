@@ -25,42 +25,48 @@
         <h1>JOGO DA VELHA</h1>
     </div>
 
-    <div class="container">
-        <!-- Contadores de vitórias -->
-        <div class="contadores-wrapper">
-            <div class="contador-jogador" id="contador-jogador1">
-                <div class="contador-imagem" id="imagem-jogador1"></div>
-                <div class="contador-info">
-                    <span class="contador-nome">Jogador 1</span>
-                    <span class="contador-pontos" id="pontos-jogador1">0</span>
-                </div>
-            </div>
-            <div class="contador-jogador" id="contador-jogador2">
-                <div class="contador-imagem" id="imagem-jogador2"></div>
-                <div class="contador-info">
-                    <span class="contador-nome">Jogador 2</span>
-                    <span class="contador-pontos" id="pontos-jogador2">0</span>
-                </div>
+    <!-- Wrapper principal para layout horizontal -->
+    <div class="main-game-wrapper">
+        <!-- Jogador 1 - Esquerda (fora do card) -->
+        <div class="contador-jogador contador-esquerda" id="contador-jogador1">
+            <div class="contador-imagem" id="imagem-jogador1"></div>
+            <div class="contador-info">
+                <span class="contador-nome">Jogador 1</span>
+                <span class="contador-pontos" id="pontos-jogador1">0</span>
             </div>
         </div>
-
-        <div id="status" class="status">Carregando Python...</div>
-        <div class="tabuleiro-wrapper">
-            <div class="tabuleiro" id="tabuleiro">
-                <div class="celula" data-pos="7"></div>
-                <div class="celula" data-pos="8"></div>
-                <div class="celula" data-pos="9"></div>
-                <div class="celula" data-pos="4"></div>
-                <div class="celula" data-pos="5"></div>
-                <div class="celula" data-pos="6"></div>
-                <div class="celula" data-pos="1"></div>
-                <div class="celula" data-pos="2"></div>
-                <div class="celula" data-pos="3"></div>
-                <div class="linha-vitoria" id="linha-vitoria"></div>
+        
+        <!-- Container do tabuleiro -->
+        <div class="container">
+            <div id="status" class="status">Carregando Python...</div>
+            
+            <!-- Tabuleiro - Centro -->
+            <div class="tabuleiro-wrapper">
+                <div class="tabuleiro" id="tabuleiro">
+                    <div class="celula" data-pos="7"></div>
+                    <div class="celula" data-pos="8"></div>
+                    <div class="celula" data-pos="9"></div>
+                    <div class="celula" data-pos="4"></div>
+                    <div class="celula" data-pos="5"></div>
+                    <div class="celula" data-pos="6"></div>
+                    <div class="celula" data-pos="1"></div>
+                    <div class="celula" data-pos="2"></div>
+                    <div class="celula" data-pos="3"></div>
+                    <div class="linha-vitoria" id="linha-vitoria"></div>
+                </div>
+                <!-- Turno embaixo do tabuleiro -->
+                <div id="turno-display" class="turno-display">Turno do X</div>
             </div>
         </div>
-        <!-- Turno embaixo do tabuleiro -->
-        <div id="turno-display" class="turno-display">Turno do X</div>
+        
+        <!-- Jogador 2 - Direita (fora do card) -->
+        <div class="contador-jogador contador-direita" id="contador-jogador2">
+            <div class="contador-imagem" id="imagem-jogador2"></div>
+            <div class="contador-info">
+                <span class="contador-nome">Jogador 2</span>
+                <span class="contador-pontos" id="pontos-jogador2">0</span>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -106,13 +112,15 @@
             // Remove background anterior e adiciona imagem
             imagemJogador1El.style.background = 'none';
             imagemJogador1El.style.backgroundImage = `url('../assets/${jogador1Data.imagem}')`;
-            imagemJogador1El.style.backgroundSize = 'cover';
+            imagemJogador1El.style.backgroundSize = 'contain';
             imagemJogador1El.style.backgroundPosition = 'center';
+            imagemJogador1El.style.backgroundRepeat = 'no-repeat';
             
             imagemJogador2El.style.background = 'none';
             imagemJogador2El.style.backgroundImage = `url('../assets/${jogador2Data.imagem}')`;
-            imagemJogador2El.style.backgroundSize = 'cover';
+            imagemJogador2El.style.backgroundSize = 'contain';
             imagemJogador2El.style.backgroundPosition = 'center';
+            imagemJogador2El.style.backgroundRepeat = 'no-repeat';
         }
 
         // Botão refresh - zera tudo e volta para seleção
