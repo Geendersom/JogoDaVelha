@@ -4,16 +4,10 @@ Jogo da Velha desenvolvido em **Python puro**, executado diretamente no navegado
 
 ## 🖼️ Pré-visualização
 
-<table>
-<tr>
-<td width="50%">
-<img src="assets/print1.png" alt="Preview 1" />
-</td>
-<td width="50%">
-<img src="assets/print2.png" alt="Preview 2" />
-</td>
-</tr>
-</table>
+<p align="center">
+  <img src="assets/print1.png" alt="Preview 1" width="48%" />
+  <img src="assets/print2.png" alt="Preview 2" width="48%" />
+</p>
 
 ## 📋 Descrição
 

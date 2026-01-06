@@ -43,5 +43,11 @@ Thumbs.db
 *.gif
 *.svg
 
+# Exceção: permitir imagens de preview no README e pasta assets
+!assets/
+!assets/.gitkeep
+!assets/print1.png
+!assets/print2.png
+
 # Manter apenas estrutura de pastas
 # (arquivos .gitkeep serão visíveis)
