@@ -130,9 +130,43 @@ class JogoDaVelha:
     def atualizar_turno(self):
         """Atualiza o display de turno"""
         try:
+            # Verifica se há vitória ativa (não atualiza se houver)
+            vitoria_ativa = getattr(window, 'vitoriaAtiva', False)
+            if vitoria_ativa:
+                return
             window.atualizarTurno(self.turno)
         except:
             pass
+    
+    def atualizar_mensagem_vitoria(self, simbolo_vencedor):
+        """Atualiza mensagem de vitória no display de turno - lógica em Python"""
+        try:
+            turno_display = document.getElementById('turno-display')
+            if not turno_display:
+                console.error('Elemento turno-display não encontrado')
+                return
+            
+            # Marca vitória como ativa
+            window.vitoriaAtiva = True
+            
+            # Obtém dados dos jogadores
+            jogador1_data = window.jogador1Data
+            jogador2_data = window.jogador2Data
+            
+            # Encontra o jogador vencedor pelo símbolo
+            nome_jogador = ''
+            if jogador1_data and jogador1_data.simbolo == simbolo_vencedor:
+                nome_jogador = jogador1_data.nome if jogador1_data.nome else 'Jogador 1'
+            elif jogador2_data and jogador2_data.simbolo == simbolo_vencedor:
+                nome_jogador = jogador2_data.nome if jogador2_data.nome else 'Jogador 2'
+            else:
+                nome_jogador = f'Jogador {simbolo_vencedor}'
+            
+            # Atualiza o texto
+            turno_display.textContent = f'{nome_jogador} ganhou essa partida!'
+            console.log(f'Mensagem de vitória atualizada: {nome_jogador} ganhou essa partida!')
+        except Exception as e:
+            console.error(f'Erro ao atualizar mensagem de vitória: {e}')
 
     def habilitar_celulas(self, habilitado):
         """Habilita ou desabilita as células do tabuleiro usando Python"""
@@ -215,8 +249,8 @@ class JogoDaVelha:
             # Atualiza o tabuleiro destacando a sequência vencedora
             self.atualizar_tabuleiro_visual(posicoes_vencedoras)
             
-            # Cria animação de linha de vitória (lógica em Python)
-            self.criar_linha_vitoria(posicoes_vencedoras)
+            # Cria animação de linha de vitória (a mensagem será atualizada quando a linha aparecer)
+            self.criar_linha_vitoria(posicoes_vencedoras, estado)
             
             # Toca som de vitória
             try:
@@ -234,6 +268,14 @@ class JogoDaVelha:
             except:
                 pass
         elif estado == "empate":
+            # Atualiza mensagem de empate no display de turno (lógica em Python)
+            try:
+                turno_display = document.getElementById('turno-display')
+                if turno_display:
+                    turno_display.textContent = 'Empate! Ninguém venceu essa partida.'
+            except:
+                pass
+            
             self.atualizar_status("EMPATE!!! 🤝", 'empate')
             self.habilitar_celulas(False)
             self.jogo_ativo = False
@@ -251,10 +293,11 @@ class JogoDaVelha:
             self.turno = "X" if self.turno == "O" else "O"
             self.atualizar_turno()
 
-    def criar_linha_vitoria(self, posicoes):
+    def criar_linha_vitoria(self, posicoes, simbolo_vencedor=None):
         """
         Cria animação de linha de vitória - cálculo matemático preciso em Python
         Calcula posições usando bounding boxes reais das células para alinhamento perfeito
+        Atualiza mensagem de vitória quando a linha aparecer
         """
         from js import Math  # type: ignore
         import math
@@ -458,6 +501,10 @@ class JogoDaVelha:
             def ativar_animacao():
                 linha_el.classList.add('ativa')
                 console.log('Animação ativada para:', tipo)
+                
+                # Atualiza mensagem de vitória quando a linha aparecer
+                if simbolo_vencedor:
+                    self.atualizar_mensagem_vitoria(simbolo_vencedor)
             
             window.setTimeout(create_proxy(ativar_animacao), 100)
     
@@ -473,6 +520,12 @@ class JogoDaVelha:
         """Reinicia o jogo - toda a lógica em Python"""
         # Remove linha de vitória
         self.esconder_linha_vitoria()
+        
+        # Reseta flag de vitória
+        try:
+            window.vitoriaAtiva = False
+        except:
+            pass
         
         self.tabuleiro = {'7': ' ', '8': ' ', '9': ' ', '4': ' ', '5': ' ', '6': ' ', '1': ' ', '2': ' ', '3': ' '}
         # Sempre começa com X

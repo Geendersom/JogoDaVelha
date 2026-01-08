@@ -230,19 +230,60 @@
         // FUNÇÕES PARA O PYTHON CHAMAR
         // ============================================
         
+        // Variável para controlar se há vitória ativa
+        let vitoriaAtiva = false;
+
         // Atualiza display de turno
         function atualizarTurno(simbolo) {
+            // Não atualiza se há vitória ativa
+            if (vitoriaAtiva) {
+                return;
+            }
+            
             const turnoDisplay = document.getElementById('turno-display');
+            if (!turnoDisplay) return;
+            
             // Encontra o jogador pelo símbolo
             let nomeJogador = '';
-            if (jogador1Data.simbolo === simbolo) {
+            if (jogador1Data && jogador1Data.simbolo === simbolo) {
                 nomeJogador = jogador1Data.nome || 'Jogador 1';
-            } else if (jogador2Data.simbolo === simbolo) {
+            } else if (jogador2Data && jogador2Data.simbolo === simbolo) {
                 nomeJogador = jogador2Data.nome || 'Jogador 2';
             } else {
                 nomeJogador = `Jogador ${simbolo}`;
             }
             turnoDisplay.textContent = `${nomeJogador}, agora é a sua vez!`;
+        }
+
+        // Atualiza display com mensagem de vitória
+        function atualizarVitoria(simboloVencedor) {
+            const turnoDisplay = document.getElementById('turno-display');
+            if (!turnoDisplay) {
+                console.error('Elemento turno-display não encontrado');
+                return;
+            }
+            
+            // Marca que há vitória ativa
+            vitoriaAtiva = true;
+            
+            // Encontra o jogador vencedor pelo símbolo
+            let nomeJogador = '';
+            if (jogador1Data && jogador1Data.simbolo === simboloVencedor) {
+                nomeJogador = jogador1Data.nome || 'Jogador 1';
+            } else if (jogador2Data && jogador2Data.simbolo === simboloVencedor) {
+                nomeJogador = jogador2Data.nome || 'Jogador 2';
+            } else {
+                nomeJogador = `Jogador ${simboloVencedor}`;
+            }
+            
+            turnoDisplay.textContent = `${nomeJogador} ganhou essa partida!`;
+            console.log('Mensagem de vitória atualizada:', turnoDisplay.textContent, 'Símbolo:', simboloVencedor);
+        }
+
+        // Atualiza display com mensagem de empate
+        function atualizarEmpate() {
+            const turnoDisplay = document.getElementById('turno-display');
+            turnoDisplay.textContent = 'Empate! Ninguém venceu essa partida.';
         }
 
         // Adiciona vitória e reinicia automaticamente
@@ -262,8 +303,12 @@
             
             // Reinicia automaticamente após 2 segundos
             setTimeout(() => {
+                // Reseta flag de vitória antes de reiniciar
+                vitoriaAtiva = false;
+                
                 if (window.jogo && typeof window.jogo.reiniciar === 'function') {
                     window.jogo.reiniciar();
+                    // A mensagem de turno será atualizada automaticamente pelo Python via atualizar_turno()
                 }
             }, 2000);
         }
@@ -272,6 +317,8 @@
         window.tocarSomClique = tocarSomClique;
         window.tocarSomVitoria = tocarSomVitoria;
         window.atualizarTurno = atualizarTurno;
+        window.atualizarVitoria = atualizarVitoria;
+        window.atualizarEmpate = atualizarEmpate;
         window.adicionarVitoria = adicionarVitoria;
         window.jogador1Data = jogador1Data;
         window.jogador2Data = jogador2Data;
