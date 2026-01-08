@@ -891,6 +891,178 @@ body::after {
 }
 
 /* ============================================
+   CONTROLE DE SOM
+   ============================================ */
+.controle-som-wrapper {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    z-index: 1000;
+}
+
+.btn-som {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(155, 92, 255, 0.2) 0%, rgba(120, 60, 200, 0.2) 100%);
+    border: 2px solid rgba(155, 92, 255, 0.4);
+    color: #9b5cff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 
+        0 0 12px rgba(155, 92, 255, 0.3),
+        inset 0 0 12px rgba(155, 92, 255, 0.1);
+}
+
+.btn-som:hover {
+    transform: scale(1.1);
+    background: linear-gradient(135deg, rgba(155, 92, 255, 0.4) 0%, rgba(120, 60, 200, 0.4) 100%);
+    border-color: rgba(155, 92, 255, 0.7);
+    box-shadow: 
+        0 0 20px rgba(155, 92, 255, 0.5),
+        0 0 30px rgba(155, 92, 255, 0.3),
+        inset 0 0 15px rgba(155, 92, 255, 0.2);
+}
+
+.btn-som:active {
+    transform: scale(0.95);
+}
+
+.som-icone {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+}
+
+.volume-control {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    background: linear-gradient(135deg, rgba(18, 5, 29, 0.95) 0%, rgba(42, 13, 63, 0.95) 100%);
+    border: 2px solid rgba(155, 92, 255, 0.4);
+    border-radius: 10px;
+    box-shadow: 
+        0 0 15px rgba(155, 92, 255, 0.4),
+        inset 0 0 10px rgba(155, 92, 255, 0.1);
+    animation: slideDown 0.3s ease-out;
+}
+
+.btn-mute {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(155, 92, 255, 0.2) 0%, rgba(120, 60, 200, 0.2) 100%);
+    border: 2px solid rgba(155, 92, 255, 0.4);
+    color: #9b5cff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 
+        0 0 8px rgba(155, 92, 255, 0.3),
+        inset 0 0 8px rgba(155, 92, 255, 0.1);
+}
+
+.btn-mute:hover {
+    transform: scale(1.1);
+    background: linear-gradient(135deg, rgba(155, 92, 255, 0.4) 0%, rgba(120, 60, 200, 0.4) 100%);
+    border-color: rgba(155, 92, 255, 0.7);
+    box-shadow: 
+        0 0 15px rgba(155, 92, 255, 0.5),
+        inset 0 0 12px rgba(155, 92, 255, 0.2);
+}
+
+.btn-mute:active {
+    transform: scale(0.95);
+}
+
+.btn-mute svg {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.volume-slider {
+    width: 80px;
+    height: 6px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: linear-gradient(90deg, rgba(155, 92, 255, 0.3) 0%, rgba(155, 92, 255, 0.1) 100%);
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+}
+
+.volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #9b5cff;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    cursor: pointer;
+    box-shadow: 
+        0 0 8px rgba(155, 92, 255, 0.6),
+        inset 0 0 4px rgba(255, 255, 255, 0.2);
+    transition: all 0.2s ease;
+}
+
+.volume-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+    box-shadow: 
+        0 0 12px rgba(155, 92, 255, 0.8),
+        inset 0 0 4px rgba(255, 255, 255, 0.3);
+}
+
+.volume-slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #9b5cff;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    cursor: pointer;
+    box-shadow: 
+        0 0 8px rgba(155, 92, 255, 0.6),
+        inset 0 0 4px rgba(255, 255, 255, 0.2);
+    transition: all 0.2s ease;
+}
+
+.volume-slider::-moz-range-thumb:hover {
+    transform: scale(1.2);
+    box-shadow: 
+        0 0 12px rgba(155, 92, 255, 0.8),
+        inset 0 0 4px rgba(255, 255, 255, 0.3);
+}
+
+.volume-slider:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* ============================================
    CONTADORES DE JOGADORES
    ============================================ */
 /* Contadores de vitórias - nas laterais (fora do card) */

@@ -21,6 +21,26 @@
         </svg>
     </button>
 
+    <!-- Controle de som abaixo do botão refresh -->
+    <div class="controle-som-wrapper">
+        <button class="btn-som" id="btn-som" title="Alternar som">
+            <!-- Ícone de som ativo -->
+            <svg class="som-icone som-ativo" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 5L6 9H2v6h4l5 4V5z"></path>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            </svg>
+            <!-- Ícone de som mutado -->
+            <svg class="som-icone som-mutado" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+                <path d="M11 5L6 9H2v6h4l5 4V5z"></path>
+                <line x1="23" y1="9" x2="17" y2="15"></line>
+                <line x1="17" y1="9" x2="23" y2="15"></line>
+            </svg>
+        </button>
+        <div class="volume-control" id="volume-control" style="display: none;">
+            <input type="range" class="volume-slider" id="volume-slider" min="0" max="100" value="100" title="Volume">
+        </div>
+    </div>
+
     <!-- Wrapper principal para layout horizontal -->
     <div class="main-game-wrapper">
         <!-- Jogador 1 - Esquerda (fora do card) -->
@@ -138,6 +158,9 @@
 
         // Inicializa contadores
         atualizarContadores();
+        
+        // Inicializa controle de som
+        inicializarControleSom();
 
         // ============================================
         // SISTEMA DE SONS NEON
@@ -145,6 +168,114 @@
         
         // Contexto de áudio global (inicializado na primeira interação)
         let audioContext = null;
+        let somMudo = false;
+        let volumeGlobal = 1.0; // 0.0 a 1.0
+        
+        // Sistema de controle de som
+        function inicializarControleSom() {
+            // Carrega preferências do localStorage
+            const somSalvo = localStorage.getItem('somMudo');
+            const volumeSalvo = localStorage.getItem('volumeGlobal');
+            
+            if (somSalvo !== null) {
+                somMudo = somSalvo === 'true';
+            }
+            if (volumeSalvo !== null) {
+                volumeGlobal = parseFloat(volumeSalvo);
+            }
+            
+            // Atualiza UI
+            atualizarUISom();
+            
+            // Event listeners
+            const btnSom = document.getElementById('btn-som');
+            const volumeSlider = document.getElementById('volume-slider');
+            
+            if (btnSom) {
+                btnSom.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    
+                    // Toggle do controle de volume
+                    const volumeControl = document.getElementById('volume-control');
+                    if (volumeControl) {
+                        if (volumeControl.style.display === 'none' || volumeControl.style.display === '') {
+                            volumeControl.style.display = 'flex';
+                        } else {
+                            volumeControl.style.display = 'none';
+                        }
+                    }
+                });
+            }
+            
+            // Botão para alternar mute/unmute dentro do controle de volume
+            const volumeControl = document.getElementById('volume-control');
+            if (volumeControl) {
+                const btnMute = document.createElement('button');
+                btnMute.className = 'btn-mute';
+                btnMute.innerHTML = somMudo ? 
+                    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>' :
+                    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>';
+                btnMute.title = somMudo ? 'Ativar som' : 'Desativar som';
+                btnMute.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    somMudo = !somMudo;
+                    localStorage.setItem('somMudo', somMudo.toString());
+                    atualizarUISom();
+                    // Atualiza ícone do botão mute
+                    btnMute.innerHTML = somMudo ? 
+                        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>' :
+                        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>';
+                    btnMute.title = somMudo ? 'Ativar som' : 'Desativar som';
+                });
+                volumeControl.insertBefore(btnMute, volumeControl.firstChild);
+            }
+            
+            // Fecha o controle de volume ao clicar fora
+            document.addEventListener('click', function(e) {
+                const volumeControl = document.getElementById('volume-control');
+                const btnSom = document.getElementById('btn-som');
+                if (volumeControl && btnSom && 
+                    !volumeControl.contains(e.target) && 
+                    !btnSom.contains(e.target) &&
+                    volumeControl.style.display !== 'none' &&
+                    volumeControl.style.display !== '') {
+                    volumeControl.style.display = 'none';
+                }
+            });
+            
+            if (volumeSlider) {
+                volumeSlider.value = (volumeGlobal * 100).toString();
+                volumeSlider.addEventListener('input', function(e) {
+                    volumeGlobal = parseFloat(e.target.value) / 100;
+                    localStorage.setItem('volumeGlobal', volumeGlobal.toString());
+                    atualizarUISom();
+                });
+            }
+        }
+        
+        function atualizarUISom() {
+            const btnSom = document.getElementById('btn-som');
+            const volumeSlider = document.getElementById('volume-slider');
+            const iconeAtivo = btnSom?.querySelector('.som-ativo');
+            const iconeMutado = btnSom?.querySelector('.som-mutado');
+            
+            if (btnSom && iconeAtivo && iconeMutado) {
+                if (somMudo) {
+                    iconeAtivo.style.display = 'none';
+                    iconeMutado.style.display = 'block';
+                    btnSom.title = 'Controle de volume (som mutado)';
+                } else {
+                    iconeAtivo.style.display = 'block';
+                    iconeMutado.style.display = 'none';
+                    btnSom.title = 'Controle de volume';
+                }
+            }
+            
+            if (volumeSlider) {
+                volumeSlider.disabled = somMudo;
+                volumeSlider.style.opacity = somMudo ? '0.5' : '1';
+            }
+        }
         
         function getAudioContext() {
             if (!audioContext) {
@@ -163,6 +294,8 @@
         
         // Gerador de som neon de clique
         function tocarSomClique() {
+            if (somMudo) return;
+            
             const ctx = getAudioContext();
             if (!ctx) return;
             
@@ -176,7 +309,9 @@
                 oscillator.frequency.value = 800;
                 oscillator.type = 'sine';
                 
-                gainNode.gain.setValueAtTime(0.08, ctx.currentTime);
+                // Aplica volume global
+                const volumeFinal = 0.08 * volumeGlobal;
+                gainNode.gain.setValueAtTime(volumeFinal, ctx.currentTime);
                 gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
                 
                 oscillator.start(ctx.currentTime);
@@ -188,6 +323,8 @@
         
         // Gerador de som neon de vitória
         function tocarSomVitoria() {
+            if (somMudo) return;
+            
             const ctx = getAudioContext();
             if (!ctx) return;
             
@@ -206,8 +343,10 @@
                     oscillator.frequency.value = freq;
                     oscillator.type = 'sine';
                     
+                    // Aplica volume global
+                    const volumeFinal = 0.12 * volumeGlobal;
                     gainNode.gain.setValueAtTime(0, time);
-                    gainNode.gain.linearRampToValueAtTime(0.12, time + 0.05);
+                    gainNode.gain.linearRampToValueAtTime(volumeFinal, time + 0.05);
                     gainNode.gain.linearRampToValueAtTime(0, time + 0.25);
                     
                     oscillator.start(time);
