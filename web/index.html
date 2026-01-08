@@ -158,9 +158,6 @@
 
         // Inicializa contadores
         atualizarContadores();
-        
-        // Inicializa controle de som
-        inicializarControleSom();
 
         // ============================================
         // SISTEMA DE SONS NEON
@@ -170,6 +167,9 @@
         let audioContext = null;
         let somMudo = false;
         let volumeGlobal = 1.0; // 0.0 a 1.0
+        
+        // Inicializa controle de som (DEPOIS das declarações das variáveis)
+        inicializarControleSom();
         
         // Sistema de controle de som
         function inicializarControleSom() {
