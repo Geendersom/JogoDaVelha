@@ -553,8 +553,8 @@ class JogoDaVelha:
             
             tipo = 'diagonal-1' if pos_str == '357' else 'diagonal-2'
             
-            # Altura da linha (espessura)
-            line_height = 4
+            # Altura da linha (espessura) - aumentada para diagonais
+            line_height = 6
             
             # Posição inicial: centro da primeira célula
             # Ajusta para centralizar verticalmente a linha
