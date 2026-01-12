@@ -50,6 +50,7 @@ Thumbs.db
 !assets/.gitkeep
 !assets/print1.png
 !assets/print2.png
+!assets/print3.png
 
 # Manter apenas estrutura de pastas
 # (arquivos .gitkeep serão visíveis)

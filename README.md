@@ -5,8 +5,15 @@ Jogo da Velha desenvolvido em **Python puro**, executado diretamente no navegado
 ## 🖼️ Pré-visualização
 
 <p align="center">
-  <img src="assets/print1.png" alt="Preview 1" width="48%" />
-  <img src="assets/print2.png" alt="Preview 2" width="48%" />
+  <img src="assets/print1.png" alt="Preview 1" width="80%" />
+</p>
+
+<p align="center">
+  <img src="assets/print2.png" alt="Preview 2" width="80%" />
+</p>
+
+<p align="center">
+  <img src="assets/print3.png" alt="Preview 3" width="80%" />
 </p>
 
 ## 📋 Descrição
