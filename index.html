@@ -1,0 +1,472 @@
+<!-- Criado por Geêndersom Araújo -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo da Velha</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="stylesheet" href="web/styles.css">
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+    <script src="web/mensagens.js"></script>
+</head>
+<body>
+    <!-- Botão de refresh no canto superior direito -->
+    <button class="btn-refresh" id="btn-refresh" title="Reiniciar tudo">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+            <path d="M21 3v5h-5"></path>
+            <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+            <path d="M3 21v-5h5"></path>
+        </svg>
+    </button>
+
+    <!-- Controle de som abaixo do botão refresh -->
+    <div class="controle-som-wrapper">
+        <button class="btn-som" id="btn-som" title="Alternar som">
+            <!-- Ícone de som ativo -->
+            <svg class="som-icone som-ativo" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 5L6 9H2v6h4l5 4V5z"></path>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            </svg>
+            <!-- Ícone de som mutado -->
+            <svg class="som-icone som-mutado" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+                <path d="M11 5L6 9H2v6h4l5 4V5z"></path>
+                <line x1="23" y1="9" x2="17" y2="15"></line>
+                <line x1="17" y1="9" x2="23" y2="15"></line>
+            </svg>
+        </button>
+        <div class="volume-control" id="volume-control" style="display: none;">
+            <input type="range" class="volume-slider" id="volume-slider" min="0" max="100" value="100" title="Volume">
+        </div>
+    </div>
+
+    <!-- Wrapper principal para layout horizontal -->
+    <div class="main-game-wrapper">
+        <!-- Jogador 1 - Esquerda (fora do card) -->
+        <div class="contador-jogador-wrapper">
+            <div id="turno-display-jogador1" class="turno-display-jogador" style="display: none;"></div>
+            <div class="contador-jogador contador-esquerda" id="contador-jogador1">
+                <div class="contador-imagem" id="imagem-jogador1"></div>
+                <div class="contador-info">
+                    <span class="contador-nome">Jogador 1</span>
+                    <span class="contador-pontos" id="pontos-jogador1">0</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Container do tabuleiro -->
+        <div class="container">
+            <!-- Título dentro do card principal -->
+            <div class="titulo-card">
+                <h1>JOGO DA VELHA</h1>
+            </div>
+            
+            <div id="status" class="status">CARREGANDO JOGO!</div>
+            
+            <!-- Tabuleiro - Centro -->
+            <div class="tabuleiro-wrapper">
+                <div class="tabuleiro" id="tabuleiro">
+                    <div class="celula" data-pos="7"></div>
+                    <div class="celula" data-pos="8"></div>
+                    <div class="celula" data-pos="9"></div>
+                    <div class="celula" data-pos="4"></div>
+                    <div class="celula" data-pos="5"></div>
+                    <div class="celula" data-pos="6"></div>
+                    <div class="celula" data-pos="1"></div>
+                    <div class="celula" data-pos="2"></div>
+                    <div class="celula" data-pos="3"></div>
+                    <div class="linha-vitoria" id="linha-vitoria"></div>
+                </div>
+                <!-- Mensagem de vitória dentro do card do tabuleiro -->
+                <div id="vitoria-display" class="vitoria-display" style="display: none;"></div>
+            </div>
+        </div>
+        
+        <!-- Jogador 2 - Direita (fora do card) -->
+        <div class="contador-jogador-wrapper">
+            <div id="turno-display-jogador2" class="turno-display-jogador" style="display: none;"></div>
+            <div class="contador-jogador contador-direita" id="contador-jogador2">
+                <div class="contador-imagem" id="imagem-jogador2"></div>
+                <div class="contador-info">
+                    <span class="contador-nome">Jogador 2</span>
+                    <span class="contador-pontos" id="pontos-jogador2">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // VERIFICAÇÃO DE JOGADORES E REDIRECIONAMENTO
+        // ============================================
+        (function() {
+            const jogador1 = sessionStorage.getItem('jogador1');
+            const jogador2 = sessionStorage.getItem('jogador2');
+            
+            if (!jogador1 || !jogador2) {
+                window.location.href = 'selecao.html';
+            }
+        })();
+
+        // ============================================
+        // SISTEMA DE CONTADORES E JOGADORES
+        // ============================================
+        let contadores = {
+            jogador1: 0,
+            jogador2: 0
+        };
+
+        // Carrega dados dos jogadores
+        const jogador1Data = JSON.parse(sessionStorage.getItem('jogador1'));
+        const jogador2Data = JSON.parse(sessionStorage.getItem('jogador2'));
+
+        // Atualiza contadores na tela
+        function atualizarContadores() {
+            document.getElementById('pontos-jogador1').textContent = contadores.jogador1;
+            document.getElementById('pontos-jogador2').textContent = contadores.jogador2;
+            
+            // Atualiza nomes dos jogadores
+            const nomeJogador1 = jogador1Data.nome || 'Jogador 1';
+            const nomeJogador2 = jogador2Data.nome || 'Jogador 2';
+            document.getElementById('contador-jogador1').querySelector('.contador-nome').textContent = nomeJogador1;
+            document.getElementById('contador-jogador2').querySelector('.contador-nome').textContent = nomeJogador2;
+            
+            // Atualiza imagens dos jogadores (usando imagens reais)
+            const imagemJogador1El = document.getElementById('imagem-jogador1');
+            const imagemJogador2El = document.getElementById('imagem-jogador2');
+            
+            // Remove background anterior e adiciona imagem
+            imagemJogador1El.style.background = 'none';
+            imagemJogador1El.style.backgroundImage = `url('assets/${jogador1Data.imagem}')`;
+            imagemJogador1El.style.backgroundSize = 'contain';
+            imagemJogador1El.style.backgroundPosition = 'center';
+            imagemJogador1El.style.backgroundRepeat = 'no-repeat';
+            
+            imagemJogador2El.style.background = 'none';
+            imagemJogador2El.style.backgroundImage = `url('assets/${jogador2Data.imagem}')`;
+            imagemJogador2El.style.backgroundSize = 'contain';
+            imagemJogador2El.style.backgroundPosition = 'center';
+            imagemJogador2El.style.backgroundRepeat = 'no-repeat';
+        }
+
+        // Botão refresh - zera tudo e volta para seleção
+        document.getElementById('btn-refresh').addEventListener('click', function() {
+            sessionStorage.clear();
+            window.location.href = 'selecao.html';
+        });
+
+        // Inicializa contadores
+        atualizarContadores();
+
+        // ============================================
+        // SISTEMA DE SONS NEON
+        // ============================================
+        
+        // Contexto de áudio global (inicializado na primeira interação)
+        let audioContext = null;
+        let somMudo = false;
+        let volumeGlobal = 1.0; // 0.0 a 1.0
+        
+        // Inicializa controle de som (DEPOIS das declarações das variáveis)
+        inicializarControleSom();
+        
+        // Sistema de controle de som
+        function inicializarControleSom() {
+            // Carrega preferências do localStorage
+            const somSalvo = localStorage.getItem('somMudo');
+            const volumeSalvo = localStorage.getItem('volumeGlobal');
+            
+            if (somSalvo !== null) {
+                somMudo = somSalvo === 'true';
+            }
+            if (volumeSalvo !== null) {
+                volumeGlobal = parseFloat(volumeSalvo);
+            }
+            
+            // Atualiza UI
+            atualizarUISom();
+            
+            // Event listeners
+            const btnSom = document.getElementById('btn-som');
+            const volumeSlider = document.getElementById('volume-slider');
+            
+            if (btnSom) {
+                btnSom.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    
+                    // Toggle do controle de volume
+                    const volumeControl = document.getElementById('volume-control');
+                    if (volumeControl) {
+                        if (volumeControl.style.display === 'none' || volumeControl.style.display === '') {
+                            volumeControl.style.display = 'flex';
+                        } else {
+                            volumeControl.style.display = 'none';
+                        }
+                    }
+                });
+            }
+            
+            // Botão para alternar mute/unmute dentro do controle de volume
+            const volumeControl = document.getElementById('volume-control');
+            if (volumeControl) {
+                const btnMute = document.createElement('button');
+                btnMute.className = 'btn-mute';
+                btnMute.innerHTML = somMudo ? 
+                    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>' :
+                    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>';
+                btnMute.title = somMudo ? 'Ativar som' : 'Desativar som';
+                btnMute.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    somMudo = !somMudo;
+                    localStorage.setItem('somMudo', somMudo.toString());
+                    atualizarUISom();
+                    // Atualiza ícone do botão mute
+                    btnMute.innerHTML = somMudo ? 
+                        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>' :
+                        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>';
+                    btnMute.title = somMudo ? 'Ativar som' : 'Desativar som';
+                });
+                volumeControl.insertBefore(btnMute, volumeControl.firstChild);
+            }
+            
+            // Fecha o controle de volume ao clicar fora
+            document.addEventListener('click', function(e) {
+                const volumeControl = document.getElementById('volume-control');
+                const btnSom = document.getElementById('btn-som');
+                if (volumeControl && btnSom && 
+                    !volumeControl.contains(e.target) && 
+                    !btnSom.contains(e.target) &&
+                    volumeControl.style.display !== 'none' &&
+                    volumeControl.style.display !== '') {
+                    volumeControl.style.display = 'none';
+                }
+            });
+            
+            if (volumeSlider) {
+                volumeSlider.value = (volumeGlobal * 100).toString();
+                volumeSlider.addEventListener('input', function(e) {
+                    volumeGlobal = parseFloat(e.target.value) / 100;
+                    localStorage.setItem('volumeGlobal', volumeGlobal.toString());
+                    atualizarUISom();
+                });
+            }
+        }
+        
+        function atualizarUISom() {
+            const btnSom = document.getElementById('btn-som');
+            const volumeSlider = document.getElementById('volume-slider');
+            const iconeAtivo = btnSom?.querySelector('.som-ativo');
+            const iconeMutado = btnSom?.querySelector('.som-mutado');
+            
+            if (btnSom && iconeAtivo && iconeMutado) {
+                if (somMudo) {
+                    iconeAtivo.style.display = 'none';
+                    iconeMutado.style.display = 'block';
+                    btnSom.title = 'Controle de volume (som mutado)';
+                } else {
+                    iconeAtivo.style.display = 'block';
+                    iconeMutado.style.display = 'none';
+                    btnSom.title = 'Controle de volume';
+                }
+            }
+            
+            if (volumeSlider) {
+                volumeSlider.disabled = somMudo;
+                volumeSlider.style.opacity = somMudo ? '0.5' : '1';
+            }
+        }
+        
+        function getAudioContext() {
+            if (!audioContext) {
+                try {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                } catch (e) {
+                    return null;
+                }
+            }
+            // Resumir contexto se estiver suspenso
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+            return audioContext;
+        }
+        
+        // Gerador de som neon de clique
+        function tocarSomClique() {
+            if (somMudo) return;
+            
+            const ctx = getAudioContext();
+            if (!ctx) return;
+            
+            try {
+                const oscillator = ctx.createOscillator();
+                const gainNode = ctx.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(ctx.destination);
+                
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+                
+                // Aplica volume global
+                const volumeFinal = 0.08 * volumeGlobal;
+                gainNode.gain.setValueAtTime(volumeFinal, ctx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+                
+                oscillator.start(ctx.currentTime);
+                oscillator.stop(ctx.currentTime + 0.1);
+            } catch (e) {
+                // Silenciosamente falha se não conseguir tocar
+            }
+        }
+        
+        // Gerador de som neon de vitória
+        function tocarSomVitoria() {
+            if (somMudo) return;
+            
+            const ctx = getAudioContext();
+            if (!ctx) return;
+            
+            try {
+                // Sequência de notas para som de vitória (acorde maior)
+                const notes = [523.25, 659.25, 783.99, 987.77]; // C5, E5, G5, B5
+                let time = ctx.currentTime;
+                
+                notes.forEach((freq, index) => {
+                    const oscillator = ctx.createOscillator();
+                    const gainNode = ctx.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(ctx.destination);
+                    
+                    oscillator.frequency.value = freq;
+                    oscillator.type = 'sine';
+                    
+                    // Aplica volume global
+                    const volumeFinal = 0.12 * volumeGlobal;
+                    gainNode.gain.setValueAtTime(0, time);
+                    gainNode.gain.linearRampToValueAtTime(volumeFinal, time + 0.05);
+                    gainNode.gain.linearRampToValueAtTime(0, time + 0.25);
+                    
+                    oscillator.start(time);
+                    oscillator.stop(time + 0.25);
+                    
+                    time += 0.12;
+                });
+            } catch (e) {
+                // Silenciosamente falha se não conseguir tocar
+            }
+        }
+        
+        // Função para remover/esconder linha de vitória (wrapper para Python)
+        function esconderLinhaVitoria() {
+            const linhaEl = document.getElementById('linha-vitoria');
+            if (linhaEl) {
+                linhaEl.classList.remove('ativa');
+                linhaEl.className = 'linha-vitoria';
+                linhaEl.style.display = 'none';
+            }
+        }
+        
+        // Exporta para compatibilidade (a lógica principal está em Python)
+        window.esconderLinhaVitoria = esconderLinhaVitoria;
+        
+        // ============================================
+        // FUNÇÕES PARA O PYTHON CHAMAR
+        // ============================================
+        
+        // Variável para controlar se há vitória ativa (usada pelo Python)
+        window.vitoriaAtiva = false;
+
+        // Adiciona vitória e reinicia automaticamente
+        function adicionarVitoria(simboloVencedor) {
+            // Determina qual jogador ganhou
+            let jogadorVencedor = null;
+            if (jogador1Data.simbolo === simboloVencedor) {
+                jogadorVencedor = 'jogador1';
+            } else if (jogador2Data.simbolo === simboloVencedor) {
+                jogadorVencedor = 'jogador2';
+            }
+            
+            if (jogadorVencedor) {
+                contadores[jogadorVencedor]++;
+                atualizarContadores();
+            }
+            
+            // Reinicia automaticamente após 2 segundos
+            setTimeout(() => {
+                // Reseta flag de vitória antes de reiniciar
+                window.vitoriaAtiva = false;
+                
+                if (window.jogo && typeof window.jogo.reiniciar === 'function') {
+                    window.jogo.reiniciar();
+                    // A mensagem de turno será atualizada automaticamente pelo Python via atualizar_turno()
+                }
+            }, 2000);
+        }
+
+        // Exporta funções para uso no Python
+        window.tocarSomClique = tocarSomClique;
+        window.tocarSomVitoria = tocarSomVitoria;
+        window.adicionarVitoria = adicionarVitoria;
+        window.jogador1Data = jogador1Data;
+        window.jogador2Data = jogador2Data;
+        
+        // JavaScript mínimo - apenas para inicializar o Pyodide
+        // Toda a lógica do jogo está em Python
+        
+        async function main() {
+            const statusEl = document.getElementById('status');
+            
+            // Verifica se está sendo executado via file://
+            if (window.location.protocol === 'file:') {
+                statusEl.innerHTML = '⚠️ Este jogo precisa ser executado via servidor HTTP.<br><br>Execute: <code>python3 server/server.py</code><br>Depois acesse: <code>http://localhost:8000</code>';
+                statusEl.style.background = '#fff3cd';
+                statusEl.style.color = '#856404';
+                statusEl.style.fontSize = '0.9em';
+                statusEl.style.padding = '20px';
+                return;
+            }
+            
+            statusEl.textContent = 'CARREGANDO JOGO!';
+            
+            try {
+                // Carrega o Pyodide
+                statusEl.textContent = 'CARREGANDO JOGO!';
+                const pyodide = await loadPyodide();
+                
+                statusEl.textContent = 'CARREGANDO JOGO!';
+                
+                // Carrega o código Python do arquivo
+                let codigoPython;
+                try {
+                    const response = await fetch('python/JogoDaVelha.py');
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    codigoPython = await response.text();
+                } catch (fetchError) {
+                    throw new Error(`Não foi possível carregar JogoDaVelha.py: ${fetchError.message}. Certifique-se de que o arquivo existe em python/JogoDaVelha.py`);
+                }
+                
+                // Executa o código Python (que já inicializa o jogo)
+                await pyodide.runPython(codigoPython);
+                
+                console.log('Jogo carregado com sucesso! Toda a lógica está em Python.');
+                
+            } catch (error) {
+                console.error('Erro ao carregar código Python:', error);
+                statusEl.innerHTML = `❌ Erro ao carregar o jogo:<br><br>${error.message}<br><br>Certifique-se de executar via servidor HTTP usando: <code>python3 server/server.py</code>`;
+                statusEl.style.background = '#f8d7da';
+                statusEl.style.color = '#721c24';
+                statusEl.style.fontSize = '0.9em';
+                statusEl.style.padding = '20px';
+            }
+        }
+
+        // Inicia quando a página carregar
+        main();
+    </script>
+</body>
+</html>
