@@ -7,6 +7,17 @@
     <title>Jogo da Velha</title>
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="stylesheet" href="web/styles.css">
+    <script>
+        // Redirecionamento imediato para seleção de jogadores se não houver jogadores selecionados
+        (function() {
+            const jogador1 = sessionStorage.getItem('jogador1');
+            const jogador2 = sessionStorage.getItem('jogador2');
+            
+            if (!jogador1 || !jogador2) {
+                window.location.replace('selecao.html');
+            }
+        })();
+    </script>
     <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
     <script src="web/mensagens.js"></script>
     <script src="app.js"></script>
